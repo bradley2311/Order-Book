@@ -7,10 +7,8 @@ OrderBook::OrderBook()
   
 }
 
-OrderBook::~OrderBook()
-{
+OrderBook::~OrderBook() = default;
 
-}
 
 void OrderBook::addOrder(Order *order)
 {
@@ -41,7 +39,9 @@ void OrderBook::cancelOrder(uint64_t orderId)
         {
             PriceLevel & level = bidIt->second;
 
-            level.removeOrder(order);
+            uint64_t id = order->orderID;
+            orderLookup.erase(it);
+            level.removeOrder(id);
 
             if(level.empty()){
                 bids.erase(bidIt);
@@ -57,7 +57,9 @@ void OrderBook::cancelOrder(uint64_t orderId)
         {
             PriceLevel& level = askIt->second;
 
-            level.removeOrder(order);
+            uint64_t id = order->orderID;
+            orderLookup.erase(it);
+            level.removeOrder(id);
 
             if (level.empty())
             {
@@ -65,9 +67,7 @@ void OrderBook::cancelOrder(uint64_t orderId)
             }
         }
     }
-    orderLookup.erase(it);
-
-    delete order;
+    
 }
 
 
@@ -88,7 +88,7 @@ void OrderBook::matchBuy(Order *incoming)
        
         while (incoming->quantity > 0 && !level.orders.empty())
         {
-            Order* resting = level.orders.front();
+            Order* resting = level.orders.front().get();
 
             int tradeQty = std::min(incoming->quantity, resting->quantity);
 
@@ -102,7 +102,6 @@ void OrderBook::matchBuy(Order *incoming)
             if (resting->quantity == 0){
                 orderLookup.erase(resting->orderID);
                 level.orders.pop_front();
-                delete resting;
             }            
         }
 
@@ -138,7 +137,7 @@ void OrderBook::matchSell(Order *incoming)
 
     while (incoming-> quantity > 0 && !level.orders.empty())
     {
-        Order* resting = level.orders.front();
+        Order* resting = level.orders.front().get();
 
         int tradeQty = std::min(incoming->quantity, resting->quantity);
 
@@ -152,7 +151,6 @@ void OrderBook::matchSell(Order *incoming)
         if (resting->quantity ==0){
             orderLookup.erase(resting->orderID);
             level.orders.pop_front();
-            delete resting;
         }  
     }
 
@@ -183,35 +181,17 @@ void OrderBook::insertOrder(Order *order)
     {
         auto& book = bids;
 
-        auto it = book.find(order->price);
+        auto[it, inserted] = book.try_emplace(order->price, order->price);
 
-        if (it == book.end())
-        {
-            PriceLevel level(order->price);
-            level.addOrder(order);
-            book.emplace(order->price, level);
-        }
-        else
-        {
-            it->second.addOrder(order);
-        }
+        it->second.addOrder(std::unique_ptr<Order>(order));
     }
     else
     {
         auto& book = asks;
 
-        auto it = book.find(order->price);
+        auto[it, inserted] = book.try_emplace(order->price, order->price);
 
-        if (it == book.end())
-        {
-            PriceLevel level(order->price);
-            level.addOrder(order);
-            book.emplace(order->price, level);
-        }
-        else
-        {
-            it->second.addOrder(order);
-        }
+        it->second.addOrder(std::unique_ptr<Order>(order));
     }
     orderLookup[ order->orderID ] = order;
 }
