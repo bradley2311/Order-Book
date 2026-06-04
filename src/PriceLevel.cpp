@@ -11,7 +11,14 @@ void PriceLevel::addOrder(Order *order)
 
 void PriceLevel::removeOrder(Order *order)
 {
-    orders.remove(order);
+     for( auto it = orders.begin(); it != orders.end(); ++it)
+  {
+        if (*it == order)
+        {
+            orders.erase(it);
+            return;
+        }
+  }
 }
 
 bool PriceLevel::empty() const

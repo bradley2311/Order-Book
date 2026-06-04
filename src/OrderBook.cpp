@@ -1,6 +1,7 @@
 #include "../include/OrderBook.h"
 #include <iostream>
 
+
 void OrderBook::addOrder(Order *order) 
 {
     if (order->side == Side::BUY){
@@ -14,7 +15,51 @@ void OrderBook::addOrder(Order *order)
 
 void OrderBook::cancelOrder(uint64_t orderId)
 {
+  auto it = orderLookup.find(orderId);
+
+  if (it == orderLookup.end())
+    return;
+
+    Order* order = it->second;
+
+    if (order->side == Side::BUY)
+    {
+        auto bidIt = bids.find(order->price);
+
+        if (bidIt != bids.end())
+        {
+            PriceLevel & level = bidIt->second;
+
+            level.removeOrder(order);
+
+            if(level.empty()){
+                bids.erase(bidIt);
+            }
+
+        }
+    }
+    else 
+    {
+        auto askIt = asks.find(order->price);
+
+        if (askIt != asks.end())
+        {
+            PriceLevel& level = askIt->second;
+
+            level.removeOrder(order);
+
+            if (level.empty())
+            {
+                bids.erase(askIt);
+            }
+        }
+    }
+    orderLookup.erase(it);
+
+    delete order;
 }
+
+
 
 
 void OrderBook::matchBuy(Order *incoming)
@@ -62,6 +107,7 @@ void OrderBook::matchBuy(Order *incoming)
 }
 
 
+
 void OrderBook::matchSell(Order *incoming)
 {
     while (incoming->quantity > 0 && !bids.empty()){
@@ -106,6 +152,8 @@ void OrderBook::matchSell(Order *incoming)
 
 }
 
+
+
 void OrderBook::insertOrder(Order *order)
 {
 
@@ -147,8 +195,20 @@ void OrderBook::insertOrder(Order *order)
 }
 
 
-
 void OrderBook::printBook() const
 {
+
+    std::cout << "\n---- BIDS ----\n";
+    for ( auto it = bids.begin(); it != bids.end(); ++it)
+    {
+        std::cout << it->first << " : " << it->second.orders.size() << "\n";  
+    }
+
+    std::cout << "\n---- ASKS ----\n";
+    for ( auto it = asks.begin(); it != asks.end(); ++it)
+    {
+        std::cout << it->first << " : " << it->second.orders.size() << "\n";  
+    }
+              
 }
 

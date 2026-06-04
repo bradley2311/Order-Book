@@ -20,6 +20,7 @@ class OrderBook {
     void matchBuy(Order* incoming);
     void matchSell(Order* incoming);
     void insertOrder(Order* order);
+    
 
    public:
     OrderBook();
