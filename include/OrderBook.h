@@ -17,14 +17,16 @@ class OrderBook {
    std::unordered_map<uint64_t, Order*> orderLookup;
 
 
+    void matchBuy(Order* incoming);
+    void matchSell(Order* incoming);
+    void insertOrder(Order* order);
+
    public:
     OrderBook();
 
     void addOrder( Order * order);
 
     void cancelOrder (uint64_t orderId);
-
-    void match (Order * incomingOrder);
 
     void printBook () const;
 
