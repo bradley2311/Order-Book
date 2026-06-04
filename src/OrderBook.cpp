@@ -1,6 +1,10 @@
 #include "../include/OrderBook.h"
 #include <iostream>
 
+OrderBook::OrderBook()
+{
+  
+}
 
 void OrderBook::addOrder(Order *order) 
 {
@@ -17,8 +21,9 @@ void OrderBook::cancelOrder(uint64_t orderId)
 {
   auto it = orderLookup.find(orderId);
 
-  if (it == orderLookup.end())
+  if (it == orderLookup.end()){
     return;
+  }
 
     Order* order = it->second;
 
@@ -71,8 +76,9 @@ void OrderBook::matchBuy(Order *incoming)
        PriceLevel & level = bestAskIt->second;
 
        
-       if (askPrice > incoming->price)
+       if (askPrice > incoming->price){
         break;
+       }
        
         while (incoming->quantity > 0 && !level.orders.empty())
         {
@@ -83,9 +89,9 @@ void OrderBook::matchBuy(Order *incoming)
             incoming->quantity -= tradeQty;
             resting->quantity -= tradeQty;
 
-            std::cout << "TRADE SELL: "
+            std::cout << "TRADE BUY : "
                       << tradeQty
-                      << "@ " << askPrice << std::endl;
+                      << " @ " << askPrice << std::endl;
             
             if (resting->quantity == 0){
                 orderLookup.erase(resting->orderID);
@@ -128,9 +134,9 @@ void OrderBook::matchSell(Order *incoming)
         incoming->quantity -= tradeQty;
         resting->quantity -= tradeQty;
 
-        std::cout << "TRADE SELL:"
+        std::cout << "TRADE SELL: "
                   << tradeQty
-                  << "@ " << bidPrice << std::endl;
+                  << " @ " << bidPrice << std::endl;
             
         if (resting->quantity ==0){
             orderLookup.erase(resting->quantity);
@@ -197,18 +203,19 @@ void OrderBook::insertOrder(Order *order)
 
 void OrderBook::printBook() const
 {
+   std::cout << "\nBOOK STATE:\n";
 
-    std::cout << "\n---- BIDS ----\n";
-    for ( auto it = bids.begin(); it != bids.end(); ++it)
-    {
-        std::cout << it->first << " : " << it->second.orders.size() << "\n";  
-    }
+std::cout << "BIDS:\n";
+for (auto& [price, level] : bids)
+{
+    std::cout << price << " -> " << level.orders.size() << "\n";
+}
 
-    std::cout << "\n---- ASKS ----\n";
-    for ( auto it = asks.begin(); it != asks.end(); ++it)
-    {
-        std::cout << it->first << " : " << it->second.orders.size() << "\n";  
-    }
-              
+std::cout << "ASKS:\n";
+for (auto& [price, level] : asks)
+{
+    std::cout << price << " -> " << level.orders.size() << "\n";
+}
+
 }
 

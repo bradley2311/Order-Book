@@ -1,4 +1,4 @@
-#include "../include/Trade.h">
+#include "../include/Trade.h"
 
 Trade::Trade (
    uint64_t buyId,
