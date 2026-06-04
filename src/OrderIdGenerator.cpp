@@ -9,3 +9,4 @@ uint64_t OrderIdGenerator::next()
 {
     return currentId++;
 }
+
