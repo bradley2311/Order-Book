@@ -3,22 +3,10 @@
 
 
 OrderBook::OrderBook()
-{
-  
+{  
 }
 
 OrderBook::~OrderBook() = default;
-
-
-void OrderBook::addOrder(Order *order)
-{
-    if (order->side == Side::BUY){
-        matchBuy(order);
-    }else 
-    {
-        matchSell(order);
-    }
-}
 
 
 void OrderBook::cancelOrder(uint64_t orderId)
@@ -170,6 +158,17 @@ void OrderBook::matchSell(Order *incoming)
         delete incoming;
     }
 
+}
+
+
+void OrderBook::addOrder(Order *order)
+{
+    if (order->side == Side::BUY){
+        matchBuy(order);
+    }else 
+    {
+        matchSell(order);
+    }
 }
 
 
