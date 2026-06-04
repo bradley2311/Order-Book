@@ -24,6 +24,7 @@ class OrderBook {
 
    public:
     OrderBook();
+    ~OrderBook();
 
     void addOrder( Order * order);
 

@@ -2,19 +2,20 @@
 
 #include <list>
 #include "Order.h"
+#include <memory>
 
 class PriceLevel
 {   
 public:
     int price;
 
-    std::list <Order*> orders;
+    std::list<std::unique_ptr<Order>> orders;
 
     explicit PriceLevel(int price);
 
-    void addOrder(Order *order);
+    void addOrder(std::unique_ptr<Order> order);
 
-    void removeOrder(Order *order);
+    void removeOrder(uint64_t orderId);
 
     bool empty () const;
 

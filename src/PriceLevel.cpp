@@ -4,21 +4,21 @@ PriceLevel::PriceLevel(int price) : price(price)
 {
 }
 
-void PriceLevel::addOrder(Order *order)
+void PriceLevel::addOrder(std::unique_ptr<Order> order)
 {
-    orders.push_back(order);
+    orders.push_back(std::move(order));
 }
 
-void PriceLevel::removeOrder(Order *order)
+void PriceLevel::removeOrder(uint64_t orderId)
 {
-     for( auto it = orders.begin(); it != orders.end(); ++it)
-  {
-        if (*it == order)
+    for (auto it = orders.begin(); it != orders.end(); ++it)
+    {
+        if ((*it)->orderID == orderId)
         {
             orders.erase(it);
             return;
         }
-  }
+    }
 }
 
 bool PriceLevel::empty() const

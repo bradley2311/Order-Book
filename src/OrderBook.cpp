@@ -1,12 +1,18 @@
 #include "../include/OrderBook.h"
 #include <iostream>
 
+
 OrderBook::OrderBook()
 {
   
 }
 
-void OrderBook::addOrder(Order *order) 
+OrderBook::~OrderBook()
+{
+
+}
+
+void OrderBook::addOrder(Order *order)
 {
     if (order->side == Side::BUY){
         matchBuy(order);
@@ -55,7 +61,7 @@ void OrderBook::cancelOrder(uint64_t orderId)
 
             if (level.empty())
             {
-                bids.erase(askIt);
+                asks.erase(askIt);
             }
         }
     }
@@ -109,6 +115,11 @@ void OrderBook::matchBuy(Order *incoming)
 
         insertOrder(incoming);
     }  
+    else 
+    {
+        orderLookup.erase(incoming->orderID);
+        delete incoming;
+    }
 
 }
 
@@ -122,7 +133,7 @@ void OrderBook::matchSell(Order *incoming)
         int bidPrice = bestBidIt->first;
         PriceLevel& level = bestBidIt->second;
 
-        if (bidPrice > incoming->price)
+        if (bidPrice < incoming->price)
             break;
 
     while (incoming-> quantity > 0 && !level.orders.empty())
@@ -139,7 +150,7 @@ void OrderBook::matchSell(Order *incoming)
                   << " @ " << bidPrice << std::endl;
             
         if (resting->quantity ==0){
-            orderLookup.erase(resting->quantity);
+            orderLookup.erase(resting->orderID);
             level.orders.pop_front();
             delete resting;
         }  
@@ -154,6 +165,11 @@ void OrderBook::matchSell(Order *incoming)
     if (incoming->quantity > 0)
     {
         insertOrder(incoming);
+    }
+      else 
+    {
+        orderLookup.erase(incoming->orderID);
+        delete incoming;
     }
 
 }
@@ -218,4 +234,6 @@ for (auto& [price, level] : asks)
 }
 
 }
+
+
 
