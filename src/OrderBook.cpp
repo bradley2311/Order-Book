@@ -108,7 +108,45 @@ void OrderBook::matchSell(Order *incoming)
 
 void OrderBook::insertOrder(Order *order)
 {
+
+    if (order->side == Side::BUY)
+    {
+        auto& book = bids;
+
+        auto it = book.find(order->price);
+
+        if (it == book.end())
+        {
+            PriceLevel level(order->price);
+            level.addOrder(order);
+            book.emplace(order->price, level);
+        }
+        else
+        {
+            it->second.addOrder(order);
+        }
+    }
+    else
+    {
+        auto& book = asks;
+
+        auto it = book.find(order->price);
+
+        if (it == book.end())
+        {
+            PriceLevel level(order->price);
+            level.addOrder(order);
+            book.emplace(order->price, level);
+        }
+        else
+        {
+            it->second.addOrder(order);
+        }
+    }
+    orderLookup[ order->orderID ] = order;
 }
+
+
 
 void OrderBook::printBook() const
 {
