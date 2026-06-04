@@ -5,9 +5,8 @@
 
 class OrderIdGenerator {
 
-    public:
-        static std::atomic<uint64_t> currentId;
-
     private:
+        static std::atomic<uint64_t> currentId;
+    public:
         static uint64_t next();
 };
